@@ -292,23 +292,34 @@ elif page == "Prediction":
 
 
     # =====================================
-    # Download buttons (CSV + Excel) – hasil terfilter (bukan edited)
+    # Download (Excel/CSV) – FULL FEATURES sesuai filter & urutan tampilan
     # =====================================
     st.markdown("---")
-    st.subheader("⬇️ Download Hasil Prediksi (Filtered)")
+    st.subheader("⬇️ Download Hasil (Full Features) – mengikuti filter & urutan tabel")
 
-    # st.download_button(
-    #     "Download CSV",
-    #     data=view_df.to_csv(index=False).encode("utf-8"),
-    #     file_name="attrition_predictions_filtered.csv",
-    #     mime="text/csv",
-    # )
+    # Build export df: ambil baris yang lolos filter (urutannya = view_df)
+    export_df = df.loc[view_df.index].copy()
 
+    # Tambah kolom prediksi (align by index)
+    export_df["Attrition_Probability"] = result.loc[view_df.index, "Attrition_Probability"].values
+    export_df["Category"] = result.loc[view_df.index, "Category"].values
+
+    # (Opsional) taruh kolom penting di depan
+    front = []
+    if "nama" in export_df.columns:
+        front.append("nama")
+    front += ["Attrition_Probability", "Category"]
+    export_df = export_df[front + [c for c in export_df.columns if c not in front]]
+
+    # Excel
     buf = BytesIO()
-    view_df.to_excel(buf, index=False, engine="openpyxl")
+    export_df.to_excel(buf, index=False, engine="openpyxl")
     st.download_button(
-        "Download Excel",
+        "Download Excel (Full Features, Filtered)",
         data=buf.getvalue(),
-        file_name="attrition_predictions_filtered.xlsx",
+        file_name="attrition_predictions_full.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
+
+
+
