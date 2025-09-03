@@ -23,11 +23,7 @@ st.set_page_config(page_title="Attrition App", layout="wide")
 LOW_CUTOFF = 0.66
 MID_CUTOFF = 0.73
 MODEL_PATHS = ["models/logreg_tuned.pkl", "logreg_tuned.pkl"]
-DEFAULT_DATA_PATHS = [
-    "/mnt/data/data_full.xlsx",  # if running here
-    "data/data_full.xlsx",       # repo path
-    "data_full.xlsx",            # cwd
-]
+DEFAULT_DATA_PATHS = ["dashboard/data_full.xlsx"]
 
 # === Theme palette (oranye) ===
 CAT_PALETTE = {
@@ -208,23 +204,22 @@ if page == "Homepage":
         "- **Prediction**: jalankan model Logistic Regression (pipeline) real-time.\n"
     )
 
-    df0 = load_default_predicted()
-    if not df0.empty:
-        st.markdown("### Snapshot cepat")
-        total = len(df0)
-        high = int((df0.get("Category","").astype(str) == "high").sum())
-        med  = int((df0.get("Category","").astype(str) == "medium").sum())
-        low  = int((df0.get("Category","").astype(str) == "low").sum())
-        rate = float((df0.get("Attrition_Probability", pd.Series([0]*total)) >= 0.5).mean()) if total else 0.0
+    # df0 = load_default_predicted()
+    # if not df0.empty:
+    #     st.markdown("### Snapshot cepat")
+    #     total = len(df0)
+    #     high = int((df0.get("Category","").astype(str) == "high").sum())
+    #     med  = int((df0.get("Category","").astype(str) == "medium").sum())
+    #     low  = int((df0.get("Category","").astype(str) == "low").sum())
 
-        c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric("Employees", f"{total:,}")
-        c2.metric("Attrition Rate (≥0.5)", f"{int(rate*100)}%")
-        c3.metric("High", high)
-        c4.metric("Medium", med)
-        c5.metric("Low", low)
-    else:
-        st.info("Belum ada dataset default. Masuk ke **Dashboard IBM** lalu upload hasil prediksi untuk dijadikan base.")
+    #     c1, c2, c3, c4, c5 = st.columns(5)
+    #     c1.metric("Employees", f"{total:,}")
+    #     c2.metric("Attrition Rate (≥0.5)", f"{int(rate*100)}%")
+    #     c3.metric("High", high)
+    #     c4.metric("Medium", med)
+    #     c5.metric("Low", low)
+    # else:
+    #     st.info("Belum ada dataset default. Masuk ke **Dashboard IBM** lalu upload hasil prediksi untuk dijadikan base.")
 
 # ======================================================
 # 2) DASHBOARD IBM
