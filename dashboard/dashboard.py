@@ -23,7 +23,7 @@ st.set_page_config(page_title="Attrition App", layout="wide")
 LOW_CUTOFF = 0.66
 MID_CUTOFF = 0.73
 MODEL_PATHS = ["models/logreg_tuned.pkl", "logreg_tuned.pkl"]
-DEFAULT_DATA_PATHS = ["dashboard/data_full.xlsx"]
+DEFAULT_DATA_PATHS = ["data_default/data_full.xlsx", "data_full.xlsx"]
 
 # === Theme palette (oranye) ===
 CAT_PALETTE = {
