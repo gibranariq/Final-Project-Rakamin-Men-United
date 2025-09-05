@@ -116,14 +116,14 @@ def _debug_paths(app_dir: Path, candidates) -> None:
         f"- Files in APP_DIR:\n{listing}\n"
         "- Tried paths:\n" + "\n".join(f"- {str(p)}" for p in candidates)
     )
-    
+
 def find_existing_path(candidates):
     for p in candidates:
         try:
             if p and Path(p).exists():
-                return str(p)  # return string for downstream pandas
+                return str(Path(p).resolve())
         except Exception:
-            continue
+            pass
     return None
 
 
@@ -136,7 +136,15 @@ def _harmonize_cols(df1: pd.DataFrame, df2: pd.DataFrame):
 @st.cache_data(show_spinner=False)
 def _load_file_to_df(path: str) -> pd.DataFrame:
     p = Path(path)
+    # robust ke csv/xlsx
     if p.suffix.lower() == ".csv":
+        # coba beberapa encoding umum
+        for enc in ("utf-8", "utf-8-sig", "latin-1"):
+            try:
+                return pd.read_csv(p, encoding=enc)
+            except Exception:
+                continue
+        # fallback default
         return pd.read_csv(p)
     else:
         return pd.read_excel(p)
@@ -148,8 +156,8 @@ def load_default_predicted():
 
     path = find_existing_path(DEFAULT_DATA_PATHS)
     if path is None:
-        st.warning("Default dataset tidak ditemukan. Jalankan prediksi di halaman Prediction untuk mengisi dashboard.")
-        _debug_paths()  # comment out if you don't want the debug panel
+        st.warning("Default dataset tidak ditemukan. Kamu bisa seed dataset lewat upload di Dashboard.")
+        _debug_paths(APP_DIR, DEFAULT_DATA_PATHS)  # << tampilkan diagnosa
         st.session_state["pred_df"] = pd.DataFrame()
         return st.session_state["pred_df"]
 
@@ -184,6 +192,7 @@ def load_default_predicted():
 
     st.session_state["pred_df"] = df
     return df
+
 
 def age_group_series(s: pd.Series) -> pd.Series:
     bins = [-np.inf, 24, 34, 44, 55, np.inf]
