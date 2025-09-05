@@ -14,6 +14,28 @@ from io import BytesIO
 import altair as alt
 from pathlib import Path
 
+# --- base dir of this script (robust for deployments) ---
+APP_DIR = Path(__file__).resolve().parent
+
+# -------------------------
+# Config
+# -------------------------
+st.set_page_config(page_title="Attrition App", layout="wide")
+
+LOW_CUTOFF = 0.66
+MID_CUTOFF = 0.73
+MODEL_PATHS = ["models/logreg_tuned.pkl", "logreg_tuned.pkl"]
+
+# default data candidates (abs & rel + secrets override)
+DEFAULT_DATA_PATHS = [
+    APP_DIR / "data_default" / "ibm_full.csv",
+    APP_DIR / "ibm_full.csv",
+    Path("data_default/ibm_full.csv"),
+    Path("ibm_full.csv"),
+]
+if "DEFAULT_DATA_PATH" in st.secrets and st.secrets["DEFAULT_DATA_PATH"]:
+    DEFAULT_DATA_PATHS.insert(0, Path(st.secrets["DEFAULT_DATA_PATH"]))  # highest priority
+
 # -------------------------
 # Config
 # -------------------------
@@ -83,9 +105,13 @@ def load_fixed_model():
 
 def find_existing_path(candidates):
     for p in candidates:
-        if Path(p).exists():
-            return p
+        try:
+            if p and Path(p).exists():
+                return str(p)  # return string for downstream pandas
+        except Exception:
+            continue
     return None
+
 
 def _harmonize_cols(df1: pd.DataFrame, df2: pd.DataFrame):
     """Union columns, preserving order of first-appearance."""
@@ -248,25 +274,95 @@ def add_engineered_features(df: pd.DataFrame) -> pd.DataFrame:
 
     return out
 
+
+# --- put near the top ---
+def _goto(page: str):
+    # callback: cukup set state; button click already triggers a rerun
+    st.session_state["nav"] = page
+
 # -------------------------
-# Sidebar Nav
+# Sidebar Nav (keyed)
 # -------------------------
 page = st.sidebar.radio(
     "Navigate",
     ["Homepage", "Dashboard IBM", "Prediction"],
-    index=0
+    key="nav",  # state-owned by this key
 )
-st.sidebar.caption("• Dashboard IBM = dataset default (auto-append dari prediksi)\n• Prediction = upload data + prediksi real-time pakai model")
+st.sidebar.caption(
+    "• Dashboard IBM = dataset default (auto-append dari prediksi)\n"
+    "• Prediction = upload data + prediksi real-time pakai model"
+)
 
 # ======================================================
 # 1) HOMEPAGE
 # ======================================================
 if page == "Homepage":
-    st.title("👋 HR Attrition App")
-    st.write(
-        "- **Dashboard IBM**: ringkasan & breakdown dataset prediksi default (auto-append hasil baru).\n"
-        "- **Prediction**: unggah data (tanpa target) → otomatis ditambah 3 fitur → prediksi real-time Logistic Regression.\n"
+    st.title("👋 HR Attrition App — Guide & Shortcuts")
+
+    # --- Color Legend (live swatches)
+    st.subheader("Category Color Legend")
+    low_c, med_c, high_c = st.columns(3)
+    low_c.markdown(
+        f"""
+        <div style="display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:{CAT_PALETTE['low']};">
+            <div style="font-weight:700;">Low</div>
+            <div style="opacity:.75;">(probability &lt; {LOW_CUTOFF:.2f})</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
+    med_c.markdown(
+        f"""
+        <div style="display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:{CAT_PALETTE['medium']};">
+            <div style="font-weight:700;">Medium</div>
+            <div style="opacity:.75;">({LOW_CUTOFF:.2f} – {MID_CUTOFF:.2f})</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    high_c.markdown(
+        f"""
+        <div style="display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:{CAT_PALETTE['high']};color:#fff;">
+            <div style="font-weight:700;">High</div>
+            <div style="opacity:.9;">(probability &gt; {MID_CUTOFF:.2f})</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("---")
+    st.subheader("How this app works (end-to-end)")
+    st.markdown(
+        f"""
+1) **Prediction Page**  
+   • Upload CSV/Excel **tanpa target** → auto tambah 3 fitur (*ExperienceRatio*, *IncomePerYearExp*, *TenureSatisfaction*).  
+   • **DROP_COLS** hanya buat **input model** (preview/export tetap full).  
+   • Model: Logistic Regression pipeline → output `Attrition_Probability` + `Category` (**Low/Med/High** sesuai legend).  
+   • Hasil batch **auto-append** ke Dashboard.
+
+2) **Dashboard IBM Page**  
+   • Gabungan **dataset default** + **semua hasil prediksi** (auto-append).  
+   • Filter: Category, Department, JobRole, MaritalStatus, AgeGroup.  
+   • Visual: By Department, Top 5 Job Role (by High), Demographics, Category Distribution.  
+   • Bisa **download** dataset dashboard (Excel).
+
+3) **Interpretation (cutoffs)**  
+   • **Low**: p < **{LOW_CUTOFF:.2f}**  
+   • **Medium**: **{LOW_CUTOFF:.2f}** ≤ p ≤ **{MID_CUTOFF:.2f}**  
+   • **High**: p > **{MID_CUTOFF:.2f}**  
+
+4) **Persistence**  
+   • Auto-append disimpan di `session_state` (hilang kalau hard refresh).  
+   • Butuh persist ke file? nanti gue tambahin tombol **Save merged** kalau lo mau.
+"""
+    )
+
+    st.markdown("---")
+    st.subheader("Quick Actions")
+    c1, c2 = st.columns(2)
+    c1.button("➡️ Go to Dashboard", on_click=_goto, args=("Dashboard IBM",))
+    c2.button("➡️ Go to Prediction", on_click=_goto, args=("Prediction",))
+
 
 # ======================================================
 # 2) DASHBOARD IBM (AUTO-APPEND)
