@@ -104,6 +104,19 @@ def load_fixed_model():
             last_err = e
     raise RuntimeError(f"Gagal load model dari {MODEL_PATHS}. Err: {last_err}")
 
+# --- DEBUG: print lokasi file yg dicoba + isi folder app ---
+def _debug_paths(app_dir: Path, candidates) -> None:
+    try:
+        listing = "\n".join(f"- {p.name}" for p in app_dir.glob("*"))
+    except Exception:
+        listing = "(gagal list directory)"
+    st.info(
+        "Debug default dataset:\n"
+        f"- APP_DIR: {app_dir}\n"
+        f"- Files in APP_DIR:\n{listing}\n"
+        "- Tried paths:\n" + "\n".join(f"- {str(p)}" for p in candidates)
+    )
+    
 def find_existing_path(candidates):
     for p in candidates:
         try:
@@ -118,6 +131,7 @@ def _harmonize_cols(df1: pd.DataFrame, df2: pd.DataFrame):
     """Union columns, preserving order of first-appearance."""
     cols = list(dict.fromkeys(list(df1.columns) + list(df2.columns)))
     return df1.reindex(columns=cols), df2.reindex(columns=cols)
+
 
 @st.cache_data(show_spinner=False)
 def _load_file_to_df(path: str) -> pd.DataFrame:
