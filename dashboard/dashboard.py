@@ -7,6 +7,9 @@
 # ======================================================
 
 import streamlit as st
+
+st.set_page_config(page_title="Attrition App", layout="wide")
+
 import pandas as pd
 import numpy as np
 import pickle, joblib
@@ -20,8 +23,6 @@ APP_DIR = Path(__file__).resolve().parent
 # -------------------------
 # Config
 # -------------------------
-st.set_page_config(page_title="Attrition App", layout="wide")
-
 LOW_CUTOFF = 0.66
 MID_CUTOFF = 0.73
 MODEL_PATHS = ["models/logreg_tuned.pkl", "logreg_tuned.pkl"]
@@ -39,7 +40,7 @@ if "DEFAULT_DATA_PATH" in st.secrets and st.secrets["DEFAULT_DATA_PATH"]:
 # -------------------------
 # Config
 # -------------------------
-st.set_page_config(page_title="Attrition App", layout="wide")
+# st.set_page_config(page_title="Attrition App", layout="wide")
 
 LOW_CUTOFF = 0.66
 MID_CUTOFF = 0.73
@@ -118,6 +119,14 @@ def _harmonize_cols(df1: pd.DataFrame, df2: pd.DataFrame):
     cols = list(dict.fromkeys(list(df1.columns) + list(df2.columns)))
     return df1.reindex(columns=cols), df2.reindex(columns=cols)
 
+@st.cache_data(show_spinner=False)
+def _load_file_to_df(path: str) -> pd.DataFrame:
+    p = Path(path)
+    if p.suffix.lower() == ".csv":
+        return pd.read_csv(p)
+    else:
+        return pd.read_excel(p)
+
 def load_default_predicted():
     """Load default predicted dataset (full features + Attrition_Probability + Category)."""
     if st.session_state["pred_df"] is not None:
@@ -126,13 +135,11 @@ def load_default_predicted():
     path = find_existing_path(DEFAULT_DATA_PATHS)
     if path is None:
         st.warning("Default dataset tidak ditemukan. Jalankan prediksi di halaman Prediction untuk mengisi dashboard.")
+        _debug_paths()  # comment out if you don't want the debug panel
         st.session_state["pred_df"] = pd.DataFrame()
         return st.session_state["pred_df"]
 
-    if path.lower().endswith(".csv"):
-        df = pd.read_csv(path)
-    else:
-        df = pd.read_excel(path)
+    df = _load_file_to_df(path)
 
     # Normalisasi kolom prediksi
     if "Attrition_Probability" not in df.columns:
