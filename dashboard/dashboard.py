@@ -45,7 +45,7 @@ if "DEFAULT_DATA_PATH" in st.secrets and st.secrets["DEFAULT_DATA_PATH"]:
 LOW_CUTOFF = 0.66
 MID_CUTOFF = 0.73
 MODEL_PATHS = ["models/logreg_tuned.pkl", "logreg_tuned.pkl"]
-DEFAULT_DATA_PATHS = ["data_default/ibm_full.csv", "ibm_full.csv"]
+# DEFAULT_DATA_PATHS = ["data_default/ibm_full.csv", "ibm_full.csv"]
 
 # === Theme palette (oranye) ===
 CAT_PALETTE = {
