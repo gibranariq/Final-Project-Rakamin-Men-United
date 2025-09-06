@@ -362,11 +362,11 @@ with st.sidebar.expander("ℹ️ Keterangan Fitur", expanded=False):
         "  - **TrainingTimesLastYear**: jumlah pelatihan dalam setahun terakhir.\n"
         "  - **NumCompaniesWorked**: jumlah perusahaan sebelumnya.\n\n"
 
-        "- **Administratif (umumnya di-drop)**\n"
+        "- **Administratif**\n"
         "  - **EmployeeNumber**: ID unik karyawan.\n"
-        "  - **EmployeeCount**: konstan (=1).\n"
-        "  - **Over18**: konstan (=Y).\n"
-        "  - **StandardHours**: konstan (=80).\n"
+        "  - **EmployeeCount**: jumlah karyawan, konstan (=1).\n"
+        "  - **Over18**: umur di atas 18, konstan (=Y).\n"
+        "  - **StandardHours**: jam bekerja satandar, konstan (=80).\n"
 
         "- **Fitur Baru**\n"
         "  - **ExperienceRatio**: rasio lama di posisi saat ini terhadap total pengalaman kerja.\n"
