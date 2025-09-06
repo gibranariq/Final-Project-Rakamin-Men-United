@@ -370,7 +370,7 @@ with st.sidebar.expander("ℹ️ Keterangan Fitur", expanded=False):
 
         "- **Fitur Baru**\n"
         "  - **ExperienceRatio**: rasio lama di posisi saat ini terhadap total pengalaman kerja.\n"
-        "  - **IncomePerYearExp**: gaji bulanan dibagi (total pengalaman kerja + 1).\n"
+        "  - **IncomePerYearExp**: gaji bulanan dibagi total pengalaman kerja.\n"
         "  - **TenureSatisfaction**: hasil perkalian lama di posisi saat ini dengan tingkat kepuasan kerja.\n"
     )
 
