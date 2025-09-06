@@ -393,7 +393,7 @@ if page == "Homepage":
     ### 2) Prediction  
     Di halaman **Prediction** kamu bisa melakukan prediksi baru.  
     - Pertama, upload file CSV/Excel (data karyawan).  
-    - Sistem akan otomatis menambahkan 3 fitur baru (*ExperienceRatio*, *IncomePerYearExp*, *TenureSatisfaction*).  
+    - Sistem akan otomatis menambahkan tiga fitur baru (*ExperienceRatio*, *IncomePerYearExp*, *TenureSatisfaction*).  Catatan: Hanya digunakan untuk prediksi, tidak ditampilkan di hasil export.
     - Model akan langsung menghitung skor kemungkinan attrition tiap karyawan.  
     - Kamu bisa filter hasilnya (misalnya nama tertentu, kategori tertentu, rentang probability).  
     - Bisa juga **pilih satu karyawan** untuk melihat detail informasinya di bawah.  
@@ -491,7 +491,7 @@ elif page == "Dashboard":
         view = view[view.get("AgeGroup").astype("string").fillna("Unknown").isin(ages)]
 
     st.markdown("---")
-    st.subheader("Ringkasan")
+    st.subheader("Statistik")
     total = len(view)
     rate = float((view.get("Attrition_Probability", pd.Series([0]*total)) >= 0.5).mean()) if total else 0.0
     high = int((view["Category"] == "high").sum())
@@ -730,7 +730,7 @@ elif page == "Prediction":
         st.caption("Belum ada karyawan yang dipilih.")
 
     st.markdown("---")
-    st.subheader("Unduh Hasil)")
+    st.subheader("Unduh Hasil")
     export_df = df_full_features.loc[view_df.index].copy()
     export_df["Attrition_Probability"] = result.loc[view_df.index, "Attrition_Probability"].values
     export_df["Category"] = result.loc[view_df.index, "Category"].values
