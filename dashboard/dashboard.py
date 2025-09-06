@@ -652,7 +652,7 @@ elif page == "Prediction":
     st.success(f"✅ {len(appended)} baris berhasil diprediksi dan sudah ditambahkan ke Dashboard.")
 
     st.markdown("---")
-    st.subheader("Ringkasan Prediksi (batch ini)")
+    st.subheader("Statistik Prediksi")
     pred_rate = float((result["Attrition_Probability"] >= 0.5).mean()) if len(result) else 0.0
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Attrition Rate (≥0.5)", f"{int(pred_rate*100)}%")
