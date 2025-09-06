@@ -367,6 +367,11 @@ with st.sidebar.expander("ℹ️ Keterangan Fitur", expanded=False):
         "  - **EmployeeCount**: konstan (=1).\n"
         "  - **Over18**: konstan (=Y).\n"
         "  - **StandardHours**: konstan (=80).\n"
+
+        "- **Fitur Baru**\n"
+        "  - **ExperienceRatio**: rasio lama di posisi saat ini terhadap total pengalaman kerja.\n"
+        "  - **IncomePerYearExp**: gaji bulanan dibagi (total pengalaman kerja + 1).\n"
+        "  - **TenureSatisfaction**: hasil perkalian lama di posisi saat ini dengan tingkat kepuasan kerja.\n"
     )
 
 
@@ -393,7 +398,7 @@ if page == "Homepage":
     ### 2) Prediction  
     Di halaman **Prediction** kamu bisa melakukan prediksi baru.  
     - Pertama, upload file CSV/Excel (data karyawan).  
-    - Sistem akan otomatis menambahkan tiga fitur baru (*ExperienceRatio*, *IncomePerYearExp*, *TenureSatisfaction*).  Catatan: Hanya digunakan untuk prediksi, tidak ditampilkan di hasil export.
+    - Sistem akan otomatis menambahkan tiga fitur baru (*ExperienceRatio*, *IncomePerYearExp*, *TenureSatisfaction*).
     - Model akan langsung menghitung skor kemungkinan attrition tiap karyawan.  
     - Kamu bisa filter hasilnya (misalnya nama tertentu, kategori tertentu, rentang probability).  
     - Bisa juga **pilih satu karyawan** untuk melihat detail informasinya di bawah.  
@@ -500,7 +505,7 @@ elif page == "Dashboard":
 
     k1, k2, k3, k4, k5 = st.columns(5)
     k1.metric("Jumlah karyawan (filtered)", f"{total:,}")
-    k2.metric("Attrition Rate (≥0.5)", f"{int(rate*100)}%")
+    k2.metric("Attrition Rate", f"{int(rate*100)}%")
     k3.metric("High", high); k4.metric("Medium", med); k5.metric("Low", low)
 
     st.markdown("---")
@@ -655,7 +660,7 @@ elif page == "Prediction":
     st.subheader("Statistik Prediksi")
     pred_rate = float((result["Attrition_Probability"] >= 0.5).mean()) if len(result) else 0.0
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Attrition Rate (≥0.5)", f"{int(pred_rate*100)}%")
+    c1.metric("Attrition Rate", f"{int(pred_rate*100)}%")
     c2.metric("Low", int((result["Category"]=="low").sum()))
     c3.metric("Medium", int((result["Category"]=="medium").sum()))
     c4.metric("High", int((result["Category"]=="high").sum()))
